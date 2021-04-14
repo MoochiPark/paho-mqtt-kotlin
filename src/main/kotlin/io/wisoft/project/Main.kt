@@ -1,10 +1,12 @@
 import io.wisoft.project.Device
-import io.wisoft.project.on
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 
 fun main(args: Array<String>) = runBlocking {
     val result = withTimeoutOrNull(30000) {
-        repeat(100) { i ->
+        repeat(950) { i ->
             launch(Dispatchers.IO) {
                 Device("kotlin-device-$i")
                     .on(sendTimes = 10)
