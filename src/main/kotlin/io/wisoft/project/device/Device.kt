@@ -8,10 +8,9 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 
 class Device(
     val clientId: String,
-//    private val broker: String = "tcp://wisoftlabs.ml:1883",
-    private val broker: String = "tcp://localhost:1883",
+    private val broker: String = "localhost",
     val topic: String = "wstest",
-    private val client: MqttClient = MqttClient(broker, clientId, null),
+    private val client: MqttClient = MqttClient("tcp://$broker:1883", clientId, null),
     private val options: MqttConnectOptions = MqttConnectOptions().apply {
         isCleanSession = true
         isAutomaticReconnect = true
@@ -23,7 +22,19 @@ class Device(
         var sendCount = 1
         connect()
         repeat(sendTimes) {
-            send("message $sendCount by $clientId")
+            send(
+                """120120120120120120120120120120
+                |120120120120120120120120120120
+                |120120120120120120120120120120
+                |120120120120120120120120120120
+            """.trimMargin()
+            )
+            println(
+                "send $sendCount by $clientId. Thread count: ${Thread.activeCount()}, Free: ${
+                    Runtime.getRuntime().freeMemory()
+                }, Total: ${Runtime.getRuntime().totalMemory()}, Max: ${Runtime.getRuntime().maxMemory()}"
+            )
+
             delay(1000)
             sendCount++
         }
@@ -32,7 +43,6 @@ class Device(
 
     private suspend inline fun send(content: String) = withContext(Dispatchers.IO) {
         client.publish(topic, content.toByteArray(), 0, false)
-        println("Published message: $content")
     }
 
     private fun connect() = client.connect(options)
